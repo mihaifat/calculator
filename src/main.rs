@@ -4,7 +4,7 @@ use calculator_module::calculator::{ReversePolishNotationConverter, ReversePolis
 
 fn main() {
 
-    let formula = "( 2 + 2 ) ^ 2".split(" ").collect();
+    let formula = "sin ( 45 * 2 )".split(" ").collect();
     let converter = ReversePolishNotationConverter::new();
     let reverse_polish_notation = converter.convert(formula);
 

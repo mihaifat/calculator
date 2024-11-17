@@ -4,10 +4,23 @@ pub mod calculator {
 
     const OPERATORS: [&str; 5] = ["+", "-", "/", "*", "^"];
 
+    const FUNCTIONS: [&str; 1] = ["sin"];
+
+
     #[derive(PartialEq)]
     enum Associativity {
         LEFT,
         RIGHT,
+    }
+
+    struct Function {
+        symbol: &'static str
+    }
+
+    impl Function {
+        const SIN: Function = Function {
+            symbol: "sin"
+        };
     }
 
     struct Operator {
@@ -56,22 +69,27 @@ pub mod calculator {
 
 
     pub struct ReversePolishNotationConverter<'a> {
-        operator_map: HashMap<&'a str, &'a Operator>
+        operator_map: HashMap<&'a str, &'a Operator>,
+        function_map: HashMap<&'a str, &'a Function>
     }
 
     impl ReversePolishNotationConverter<'_> {
 
         pub fn new() -> Self {
-            let mut map = HashMap::new();
-            map.insert(Operator::ADDITION.symbol, &Operator::ADDITION);
-            map.insert(Operator::SUBTRACTION.symbol, &Operator::SUBTRACTION);
-            map.insert(Operator::DIVISION.symbol, &Operator::DIVISION);
-            map.insert(Operator::MULTIPLICATION.symbol, &Operator::MULTIPLICATION);
-            map.insert(Operator::MODULUS.symbol, &Operator::MODULUS);
-            map.insert(Operator::POWER.symbol, &Operator::POWER);
+            let mut operator_map = HashMap::new();
+            operator_map.insert(Operator::ADDITION.symbol, &Operator::ADDITION);
+            operator_map.insert(Operator::SUBTRACTION.symbol, &Operator::SUBTRACTION);
+            operator_map.insert(Operator::DIVISION.symbol, &Operator::DIVISION);
+            operator_map.insert(Operator::MULTIPLICATION.symbol, &Operator::MULTIPLICATION);
+            operator_map.insert(Operator::MODULUS.symbol, &Operator::MODULUS);
+            operator_map.insert(Operator::POWER.symbol, &Operator::POWER);
+
+            let mut function_map = HashMap::new();
+            function_map.insert(Function::SIN.symbol, &Function::SIN);
             
             Self {
-                operator_map: map,
+                operator_map,
+                function_map
             }
         }
 
@@ -83,8 +101,14 @@ pub mod calculator {
                 self.operator_map.contains_key(token)
             };
 
+            let is_function = |token: &str| -> bool {
+                self.function_map.contains_key(token)
+            };
+
             for token in tokens {
-                if is_operator(token) {
+                if is_function(token) {
+                    stack.push(token);
+                } else if is_operator(token) {
                     while !stack.is_empty() && self.operator_map.contains_key(stack.last().ok_or_else(|| "Cannot fetch last element from stack")?) {
                         let current_operator = self.operator_map.get(token).ok_or_else(|| "Cannot fetch current operator".to_string())?;
                         let top_stack_element = stack.last().ok_or_else(|| "Empty stack".to_string())?;
@@ -105,6 +129,9 @@ pub mod calculator {
                         let element = stack.pop().ok_or_else(|| "Could not pop from stack")?;
                         if !element.eq("(") {
                             output.push_back(element);
+                        }
+                        if is_function(stack.last().ok_or_else(|| "Could not parse last token for is_function check")?) {
+                            output.push_back(stack.pop().ok_or_else(|| "Could not pop from stack to send it to output queue")?);
                         }
                     }
                     stack.pop();
@@ -148,6 +175,13 @@ pub mod calculator {
                         Ok(value) => self.operand_stack.push(value),
                         Err(error) => return Err(error),
                     }
+                } else if FUNCTIONS.contains(&token) {
+                    let operand = self.operand_stack.pop().ok_or_else(|| "Could not fetch operand")?;
+                    let result = self.apply_function(token, operand);
+                    match result {
+                        Ok(value) => self.operand_stack.push(value),
+                        Err(error) => return Err(error),
+                    }
                 } else {
                     let result = token.parse::<f64>().map_err(|_| "Could not parse operand".to_string());
                     match result {
@@ -173,5 +207,13 @@ pub mod calculator {
                 _ => Err("Operator ".to_string() + operator + " is not handled")
             }
         }
+
+        fn apply_function(&self, function: &str, operand: f64) -> Result<f64, String> {
+            match function {
+                "sin" => Ok(f64::sin(operand)),
+                _ => Err("Function ".to_string() + function + " is not handled")
+            }
+        }
+
     }
 }
