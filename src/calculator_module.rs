@@ -127,11 +127,8 @@ pub mod calculator {
                 } else if token.eq(")") {
                     while !stack.is_empty() {
                         let element = stack.pop().ok_or_else(|| "Could not pop from stack")?;
-                        if !element.eq("(") {
+                        if !element.eq("(") || is_function(element) {
                             output.push_back(element);
-                        }
-                        if is_function(stack.last().ok_or_else(|| "Could not parse last token for is_function check")?) {
-                            output.push_back(stack.pop().ok_or_else(|| "Could not pop from stack to send it to output queue")?);
                         }
                     }
                     stack.pop();

@@ -1,5 +1,3 @@
-mod calculator_module;
-
 use calculator_module::calculator::{ReversePolishNotationConverter, ReversePolishNotationParser};
 
 fn main() {

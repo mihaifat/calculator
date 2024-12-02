@@ -3,4 +3,8 @@ name = "calculator"
 version = "0.1.0"
 edition = "2021"
 
+[lib]
+name = "calculator_module"
+path = "src/calculator_module.rs"
+
 [dependencies]
