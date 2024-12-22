@@ -4,7 +4,7 @@ pub mod calculator {
 
     const OPERATORS: [&str; 5] = ["+", "-", "/", "*", "^"];
 
-    const FUNCTIONS: [&str; 1] = ["sin"];
+    const FUNCTIONS: [&str; 4] = ["sin", "cos", "tan", "cotan"];
 
 
     #[derive(PartialEq)]
@@ -20,6 +20,15 @@ pub mod calculator {
     impl Function {
         const SIN: Function = Function {
             symbol: "sin"
+        };
+        const COS: Function = Function {
+            symbol: "cos"
+        };
+        const TAN: Function = Function {
+            symbol: "tan"
+        };
+        const COTAN: Function = Function {
+            symbol: "cotan"
         };
     }
 
@@ -86,6 +95,9 @@ pub mod calculator {
 
             let mut function_map = HashMap::new();
             function_map.insert(Function::SIN.symbol, &Function::SIN);
+            function_map.insert(Function::COS.symbol, &Function::COS);
+            function_map.insert(Function::TAN.symbol, &Function::TAN);
+            function_map.insert(Function::COTAN.symbol, &Function::COTAN);
             
             Self {
                 operator_map,
@@ -208,6 +220,9 @@ pub mod calculator {
         fn apply_function(&self, function: &str, operand: f64) -> Result<f64, String> {
             match function {
                 "sin" => Ok(f64::sin(operand)),
+                "cos" => Ok(f64::cos(operand)),
+                "tan" => Ok(f64::tan(operand)),
+                "cotan" => Ok(1.0f64 / f64::tan(operand)),
                 _ => Err("Function ".to_string() + function + " is not handled")
             }
         }
