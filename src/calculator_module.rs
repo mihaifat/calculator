@@ -4,7 +4,7 @@ pub mod calculator {
 
     const OPERATORS: [&str; 5] = ["+", "-", "/", "*", "^"];
 
-    const FUNCTIONS: [&str; 4] = ["sin", "cos", "tan", "cotan"];
+    const FUNCTIONS: [&str; 5] = ["sin", "cos", "tan", "cotan", "factorial"];
 
 
     #[derive(PartialEq)]
@@ -29,6 +29,9 @@ pub mod calculator {
         };
         const COTAN: Function = Function {
             symbol: "cotan"
+        };
+        const FACTORIAL: Function = Function {
+            symbol: "factorial"
         };
     }
 
@@ -98,7 +101,8 @@ pub mod calculator {
             function_map.insert(Function::COS.symbol, &Function::COS);
             function_map.insert(Function::TAN.symbol, &Function::TAN);
             function_map.insert(Function::COTAN.symbol, &Function::COTAN);
-            
+            function_map.insert(Function::FACTORIAL.symbol, &Function::FACTORIAL);
+
             Self {
                 operator_map,
                 function_map
@@ -223,9 +227,23 @@ pub mod calculator {
                 "cos" => Ok(f64::cos(operand)),
                 "tan" => Ok(f64::tan(operand)),
                 "cotan" => Ok(1.0f64 / f64::tan(operand)),
+                "factorial" => Ok(Self::factorial(operand)),
                 _ => Err("Function ".to_string() + function + " is not handled")
             }
         }
 
+        fn factorial(operand: f64) -> f64 {
+            if operand == 0f64 {
+                return 1f64;
+            }
+            let mut result = 1f64;
+            for i in 1..= (operand as i64) {
+                let mult = i as f64;
+                result *= mult;
+            }   
+            result
+        }
+
     }
 }
+
